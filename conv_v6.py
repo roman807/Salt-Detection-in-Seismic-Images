@@ -15,10 +15,10 @@ import tensorflow as tf
 import cv2
 import os
 
-tr_image_dir = 'c:\\Users\\Roman\\Documents\\Projects\\Kaggle\\TGS_Salt\\all\\train\\images'
-tr_mask_dir = 'c:\\Users\\Roman\\Documents\\Projects\\Kaggle\\TGS_Salt\\all\\train\\masks'
+tr_image_dir = '/home/roman/Documents/Projects/Kaggle/TGS_Salt/Data/train/images'
+tr_mask_dir = '/home/roman/Documents/Projects/Kaggle/TGS_Salt/Data/train/masks'
 
-os.chdir(tr_image_dir)
+    os.chdir(tr_image_dir)
 train_im = os.listdir(tr_image_dir)
 x = np.array([np.array(cv2.imread(p, cv2.IMREAD_GRAYSCALE)) for p in train_im]) / 255
 
@@ -26,9 +26,15 @@ os.chdir(tr_mask_dir)
 train_ma = os.listdir(tr_mask_dir)
 y = np.array([np.array(cv2.imread(p, cv2.IMREAD_GRAYSCALE)) for p in train_ma]) / 255
 
-# expand dimensions for CNN inout
+# expand dimensions for CNN input
 x = np.expand_dims(x, axis=3)
 y = np.expand_dims(y, axis=3)
+
+train_val_split = 0.1
+x_train = x[0:int(x.shape[0]*(1-train_val_split)),:,:,:]
+y_train = y[0:int(y.shape[0]*(1-train_val_split)),:,:,:]
+x_val = x[int(x.shape[0]*(1-train_val_split)):,:,:,:]
+y_val = y[int(x.shape[0]*(1-train_val_split)):,:,:,:]
 
 def conv_block(x_input, num_layers, f, k):
     x = x_input
@@ -57,11 +63,11 @@ kernel_sizes = [3, 5, 7, 9, 11]
 # http://www.davidtvs.com/keras-custom-metrics/
 class MeanIoU(object):
     def __init__(self):
-        super().__init__()  #<- super allows class for other classes to be used https://stackoverflow.com/questions/222877/what-does-super-do-in-python/33469090#33469090
+        super().__init__()
     def mean_iou(self, y_true, y_pred):
         # Wraps np_mean_iou method and uses it as a TensorFlow op.
         # Takes numpy arrays as its arguments and returns numpy arrays as outputs
-        return tf.py_func(self.np_mean_iou, [y_true, y_pred], tf.float32)
+        return tf.py_func(self.np_mean_iou, [y_true, y_pred], tf.float64)
     def np_mean_iou(self, y_true, y_pred):
         y_pred = np.round(y_pred + 0.05, 0).reshape(-1)
         y_true = y_true.reshape(-1)        
@@ -73,9 +79,8 @@ class MeanIoU(object):
         # Just in case we get a division by 0, ignore/hide the error and set the value to 0
         with np.errstate(divide='ignore', invalid='ignore'):
             iou = true_positive / (true_positive + false_positive + false_negative)
-        iou[np.isnan(iou)] = 0
-        return np.mean(iou).astype(np.float32)
-
+        #iou[np.isnan(iou)] = 0
+        return np.mean(iou).astype(np.float64)
 miou = MeanIoU()
 
 def bin_acc05(y_true, y_pred):
@@ -88,7 +93,7 @@ model.compile(loss = 'binary_crossentropy', optimizer='adam',
               metrics=['binary_accuracy', bin_acc05, miou.mean_iou])
 model.summary()
 
-model.fit(x, y, epochs=5, batch_size=128, validation_split=0.2, verbose=1)
+model.fit(x_train, y_train, epochs=5, batch_size=128, validation_data=(x_val,y_val), verbose=1)
 y_hat = model.predict(x, verbose=1)
 y_hat_binary = np.round(y_hat, 0)
 
