@@ -1,4 +1,4 @@
-# TGS_Salt
+# Salt Detection in Seismic Images
 
 ### Goal
 The purpose of this project is to detect salt in seismic images by classifying each pixel in
