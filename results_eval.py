@@ -8,7 +8,7 @@ Created on Tue Sep 18 07:47:28 2018
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, log_loss
 import os
 
 os.chdir('/home/roman/Downloads')
@@ -18,7 +18,6 @@ y_train_pred = results_train['y_train_pred']
 results_val = pd.read_csv('results_val.csv')
 y_val = results_val['y_val']
 y_val_pred = results_val['y_val_pred'].fillna(0)
-
 
 true_positive_train = []
 false_positive_train = []
@@ -58,8 +57,18 @@ plt.legend(['train', 'val'])
 plt.grid()
 plt.show()
 
+i = 0.15
+y_train_pred_bin = np.round(y_train_pred + i, 0)
+y_val_pred_bin = np.round(y_val_pred + i, 0)
 
-y_val_pred.shape
+loss_train = log_loss(y_train, y_train_pred)
+loss_val = log_loss(y_val, y_val_pred)
+                  
+                         
+print('mean IOU training: ' + str(iou_train[5]))
+print('mean IOU validation: ' + str(iou_val[5]))
+print('loss training: ' + str(loss_train))
+print('loss validation: ' + str(loss_val))
 
 
 os.chdir('/home/roman/Documents/Projects/Kaggle/TGS_Salt')
