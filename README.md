@@ -21,4 +21,6 @@ We achieved a mean intersection over union of correctly identified salt of 0.776
 examples on predicions on the validation set. Images in the first column are actual seismic images. The second and 
 third columns show the corresponding labeled masks and the masks predicted by CNNs, respectively. White pixels in 
 the masks represents identified salt.
-
+<p align="center">
+  <img src="https://github.com/roman807/TGS_Salt/blob/master/examples.png" width="350">
+</p>
