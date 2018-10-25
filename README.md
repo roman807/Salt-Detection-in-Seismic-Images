@@ -5,7 +5,7 @@ The purpose of this project is to detect salt in seismic images by classifying e
 a 101x101 picture. The dataset contains 4,000 training images (with corresponding masks that identify
 salt) and 18,000 test images. This project was completed as part of the Kaggle TGS Salt competition 
 which closed in October 2018. https://www.kaggle.com/c/tgs-salt-identification-challenge. I teamed up
-with @des137
+with @des137 for this project.
 
 ### Approach
 We used a CNN with U-Net architecture in our approach. A detailed description of the U-Net can be found
